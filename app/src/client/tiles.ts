@@ -78,7 +78,11 @@ export function createTile (index: number): HTMLAnchorElement {
     // Pin this tile: once loaded it is never virtualised out again, so a
     // scroll back up reuses this exact <img> instead of rebuilding it in a
     // blank/placeholder state. See state.stickyTiles / virtualize().
-    state.stickyTiles.add(index)
+    // Guard: if this tile was virtualised out before its (in-flight) image
+    // finished, the load still fires on the now-detached <img>. Only pin the
+    // index while this <a> is still the live tile for it, so a stale request
+    // can't mark a not-yet-loaded replacement tile as sticky.
+    if (state.renderedTiles.get(index) === a) state.stickyTiles.add(index)
   }
   a.appendChild(img)
 
