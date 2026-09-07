@@ -73,7 +73,13 @@ export function createTile (index: number): HTMLAnchorElement {
   // `#gallery img.loaded` fades opacity from 0 to 1 so the thumbhash blurs
   // into the sharp image instead of snapping (and masks Chrome/Edge's brief
   // white flash between `img.src` being set and the bytes actually painting).
-  img.onload = () => img.classList.add('loaded')
+  img.onload = () => {
+    img.classList.add('loaded')
+    // Pin this tile: once loaded it is never virtualised out again, so a
+    // scroll back up reuses this exact <img> instead of rebuilding it in a
+    // blank/placeholder state. See state.stickyTiles / virtualize().
+    state.stickyTiles.add(index)
+  }
   a.appendChild(img)
 
   if (item.type === 'VIDEO') {
